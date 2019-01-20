@@ -30,6 +30,10 @@ func wenhookHandler(res http.ResponseWriter, req *http.Request) {
 	tgToken := strings.Replace(req.URL.Path, "/webhook/", "", 1)
 	log.Infof(ctx, "token: "+tgToken)
 
+	query := req.URL.Query()
+	language1 := query.Get("language1")
+	language2 := query.Get("language2")
+
 	// Parse request JSON
 	requestBody, err := ioutil.ReadAll(req.Body)
 	if err != nil {
@@ -47,9 +51,9 @@ func wenhookHandler(res http.ResponseWriter, req *http.Request) {
 	switch {
 	// in case of message, send message.
 	case updateType == util.MessageType:
-		log.Infof(ctx, "From: %d", tgUpdate.Message.Chat.ID)
-		log.Infof(ctx, "Text: %s", tgUpdate.Message.Text)
-		util.SendMessage(ctx, tgUpdate.Message.Chat.ID, tgUpdate.Message.Text, tgToken)
+		translation := util.Translation(ctx, tgUpdate.Message.Text, language1, language2)
+
+		util.SendMessage(ctx, tgUpdate.Message.Chat.ID, translation, tgToken)
 	}
 }
 
