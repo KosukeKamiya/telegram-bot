@@ -10,18 +10,33 @@ import (
 // Translation returns string that translated from language2 to language1
 // TBD : language detection
 func Translation(ctx context.Context, sourceText string, language1 string, language2 string) string {
-
 	client, err := translate.NewClient(ctx)
 	if err != nil {
 		return ""
 	}
-	text := sourceText
-	// Sets the target language.
-	target, err := language.Parse(language1)
+
+	// Language detection
+	languages, err := client.DetectLanguage(ctx, []string{sourceText})
 	if err != nil {
 		return ""
 	}
-	translations, err := client.Translate(ctx, []string{text}, target, nil)
+	inputlanguage := languages[0][0].Language.String()
+
+	target := ""
+	if inputlanguage == language1 {
+		target = language2
+	} else if inputlanguage == language2 {
+		target = language1
+	} else {
+		return ""
+	}
+
+	targetlanguage, err := language.Parse(target)
+	if err != nil {
+		return ""
+	}
+
+	translations, err := client.Translate(ctx, []string{sourceText}, targetlanguage, nil)
 	if err != nil {
 		return ""
 	}
