@@ -1,5 +1,6 @@
 package util
 
+// These consts represents types of webhook.
 const (
 	MessageType            = iota
 	EditedMessageType      = iota
